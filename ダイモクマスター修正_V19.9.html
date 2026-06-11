@@ -1,0 +1,1127 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>ダイモク・マスター Ver19.0</title>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+  <!-- CSSファイルを読み込む -->
+  <style>
+
+/* --- テーマ別カラー定義 --- */
+/* デフォルト：ナチュラル茶系 */
+.app-container.theme-default {
+  --md-sys-color-primary: #8F4D00;
+  --md-sys-color-background: #FDF6ED;
+  --md-sys-color-surface: #FFFDF9;
+}
+.app-container.theme-default header { background-color: #8D6E63; }
+.app-container.theme-default .btn-record { background: var(--md-sys-color-primary); }
+.app-container.theme-default .btn-record:active { background: #703C00; }
+
+/* パステルピンク */
+.app-container.theme-pink {
+  --md-sys-color-primary: #D81B60;
+  --md-sys-color-background: #FFF0F5;
+  --md-sys-color-surface: #FFF9FA;
+}
+.app-container.theme-pink header { background-color: #F48FB1; }
+.app-container.theme-pink .btn-record { background: #E91E63; }
+.app-container.theme-pink .btn-record:active { background: #C2185B; }
+
+/* ミントグリーン */
+.app-container.theme-green {
+  --md-sys-color-primary: #2E7D32;
+  --md-sys-color-background: #E8F5E9;
+  --md-sys-color-surface: #F1F8F5;
+}
+.app-container.theme-green header { background-color: #81C784; }
+.app-container.theme-green .btn-record { background: #4CAF50; }
+.app-container.theme-green .btn-record:active { background: #388E3C; }
+
+/* ラベンダー */
+.app-container.theme-purple {
+  --md-sys-color-primary: #6A1B9A;
+  --md-sys-color-background: #F3E5F5;
+  --md-sys-color-surface: #F9F2FA;
+}
+.app-container.theme-purple header { background-color: #BA68C8; }
+.app-container.theme-purple .btn-record { background: #9C27B0; }
+.app-container.theme-purple .btn-record:active { background: #7B1FA2; }
+
+:root {
+  --elevation-1: 0px 1px 3px rgba(0,0,0,0.2);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  height: 100dvh;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: linear-gradient(135deg, #e6ccb2, #b07d62);
+  font-family: 'Noto Sans JP', sans-serif;
+  transition: background 0.5s ease;
+}
+
+body { display: flex; justify-content: center; align-items: center; }
+
+.app-container {
+  width: 100%; max-width: 440px; height: 100dvh;
+  background-color: var(--md-sys-color-background);
+  display: flex; flex-direction: column; overflow: hidden; position: relative;
+  transition: background-color 0.5s ease;
+}
+
+@media (min-width: 445px) {
+  .app-container {
+    height: 820px; max-height: 90dvh; border-radius: 32px;
+    border: 6px solid #4a3319; box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+  }
+}
+
+header { color: white; padding: 14px; text-align: center; flex-shrink: 0; position: relative; transition: background-color 0.5s ease; }
+header h1 { font-size: 18px; display: flex; align-items: center; justify-content: center; gap: 6px; }
+header p { font-size: 11px; opacity: 0.9; margin-top: 2px; }
+
+.btn-settings {
+  position: absolute; right: 10px; top: 10px; background: rgba(255,255,255,0.2);
+  border: none; color: white; border-radius: 50%; width: 36px; height: 36px;
+  display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s;
+}
+.btn-settings:active { background: rgba(255,255,255,0.4); }
+
+.main-content {
+  flex: 1; padding: 14px; display: flex; flex-direction: column; position: relative;
+  overflow-y: auto; -webkit-overflow-scrolling: touch;
+}
+
+.bg-layer {
+  position: absolute; top: 0; left: 0; width: 100%; height: 250px; z-index: 0; transition: filter 1s ease;
+}
+.time-morning { filter: brightness(1.1) sepia(0.1); }
+.time-day { filter: brightness(1.0); }
+.time-night { filter: brightness(0.9) sepia(0.15) hue-rotate(-5deg) saturate(1.05); }
+
+.bubble-container { position: relative; z-index: 5; margin-bottom: 6px; }
+.bubble {
+  background: rgba(255, 255, 255, 0.95); border: 2px solid var(--md-sys-color-primary);
+  border-radius: 18px; padding: 10px 14px; font-size: 14px; font-weight: 500; box-shadow: var(--elevation-1);
+  line-height: 1.4; transition: border-color 0.5s ease;
+}
+
+.character-stage { display: flex; justify-content: center; align-items: flex-end; z-index: 5; height: 150px; margin: 4px 0 12px 0; flex-shrink: 0; }
+#milk-svg { width: 150px; height: 150px; transform-origin: bottom center; animation: idle 4s ease-in-out infinite; }
+
+#milk-tail { transform-origin: 140px 140px; animation: tail-wag 3s ease-in-out infinite; }
+.eyes-normal { transform-origin: 100px 80px; animation: blink 5s infinite; }
+.anim-purr #milk-svg { animation: purr 0.15s linear infinite; }
+.anim-bounce #milk-svg { animation: bounce 0.8s ease-out; }
+.anim-jump #milk-svg { animation: bigJump 1s ease-out; }
+
+@keyframes idle { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.03, 0.97) translateY(-2px); } }
+@keyframes tail-wag { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(15deg); } }
+@keyframes blink { 0%, 90%, 100% { transform: scaleY(1); } 95% { transform: scaleY(0.1); } }
+@keyframes purr { 50% { transform: translate(1px, 1px) scale(1.01); } }
+@keyframes bounce { 0%, 100% { transform: translateY(0); } 30% { transform: translateY(-20px); } 50% { transform: translateY(2px); } }
+@keyframes bigJump { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-60px); } }
+
+.status-card { background: rgba(255, 255, 255, 0.95); border-radius: 20px; padding: 14px; box-shadow: var(--elevation-1); z-index: 5; margin-bottom: 10px; }
+.status-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 12px; }
+.status-item { display: flex; flex-direction: column; justify-content: center; }
+.status-label { font-size: 11px; color: #52443C; font-weight: bold; margin-bottom: 2px; }
+.status-value { font-size: 14px; font-weight: 700; color: var(--md-sys-color-primary); transition: color 0.5s ease; }
+.status-value.large { font-size: 16px; }
+#next-flower-text { font-size: 11.5px; color: #E65100; font-weight: 700; white-space: nowrap; }
+.status-divider { grid-column: span 2; height: 1px; border-bottom: 1px dashed #D7CCC8; margin: 4px 0; }
+.progress-bar { height: 8px; background: #E0E0E0; border-radius: 4px; overflow: hidden; margin-top: 4px; }
+.progress-fill { height: 100%; background: #FF9800; width: 0%; transition: width 0.5s ease; }
+
+.flower-part { transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+
+.anim-bloom {
+  transform-origin: center bottom;
+  animation: bloomPop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+}
+@keyframes bloomPop {
+  0% { transform: scale(0); opacity: 0; }
+  70% { transform: scale(1.15); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.fixed-bottom-actions { background-color: var(--md-sys-color-background); padding: 10px 14px; border-top: 1px solid rgba(0,0,0,0.08); z-index: 10; flex-shrink: 0; transition: background-color 0.5s ease; }
+@supports (padding-bottom: env(safe-area-inset-bottom)) { .fixed-bottom-actions { padding-bottom: calc(10px + env(safe-area-inset-bottom)); } }
+
+.actions-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.btn-action { background: var(--md-sys-color-surface); border: 2px solid #857368; color: var(--md-sys-color-primary); border-radius: 14px; padding: 10px 4px; font-size: 12px; font-weight: bold; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; box-shadow: var(--elevation-1); transition: color 0.5s ease, border-color 0.5s ease; }
+.btn-action:active { background: #FFDCC3; }
+.btn-record { grid-column: span 3; color: white; border: none; padding: 14px; font-size: 16px; border-radius: 16px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: var(--elevation-1); margin-top: 4px; transition: background-color 0.5s ease; }
+
+.dialog-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 100; padding: 20px; }
+.dialog { background: white; border-radius: 24px; width: 100%; max-width: 340px; padding: 20px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+.dialog-input { width: 100%; padding: 10px; border: 2px solid #857368; border-radius: 10px; font-size: 16px; margin-bottom: 12px; font-weight: bold; }
+.preset-buttons { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 10px; }
+.preset-btn { background: #F5F5F5; border: 1px solid #CCC; padding: 8px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; }
+.dialog-actions { display: flex; gap: 10px; margin-top: 12px; }
+.btn-flat { flex: 1; padding: 12px; font-size: 14px; font-weight: bold; border-radius: 10px; cursor: pointer; border: none; }
+
+.setting-label { display: block; text-align: left; font-size: 12px; font-weight: bold; color: #52443C; margin-bottom: 4px; }
+.btn-reset { width: 100%; padding: 12px; font-size: 14px; font-weight: bold; border-radius: 10px; cursor: pointer; background: #FFEBEE; color: #D32F2F; border: 1px solid #EF9A9A; margin-top: 8px; }
+.btn-reset:active { background: #FFCDD2; }
+
+
+/* ===== 【V19追加】唱題のあゆみ用追加スタイル ===== */
+.daimoku-bar {
+  grid-column: span 3;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  margin-top: 4px;
+  box-shadow: var(--elevation-1);
+  transition: background-color 0.5s ease;
+}
+/* テーマカラー連動用 */
+.app-container.theme-default .daimoku-bar { background: var(--md-sys-color-primary); }
+.app-container.theme-pink .daimoku-bar { background: #E91E63; }
+.app-container.theme-green .daimoku-bar { background: #4CAF50; }
+.app-container.theme-purple .daimoku-bar { background: #9C27B0; }
+
+.daimoku-bar-title {
+  color: white;
+  font-weight: bold;
+  font-size: 16px;
+  letter-spacing: 1px;
+}
+.daimoku-bar-btn {
+  background: transparent;
+  border: 1.5px solid white;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: background 0.2s;
+}
+.daimoku-bar-btn:active {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.history-weeks-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.history-week-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 12px 10px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.04);
+  border: 1px solid #efe8df;
+  display: flex;
+  flex-direction: column;
+}
+.history-card-title {
+  font-size: 13px;
+  font-weight: bold;
+  color: var(--md-sys-color-primary);
+  margin-bottom: 8px;
+  text-align: center;
+}
+.history-day-list {
+  font-size: 12px;
+  color: #52443C;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.history-day-item {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px dashed #efe8df;
+  padding-bottom: 2px;
+}
+.history-day-item strong {
+  font-weight: 700;
+}
+.history-card-total {
+  font-size: 12px;
+  font-weight: bold;
+  color: #52443C;
+  border-top: 1px solid #857368;
+  margin-top: 10px;
+  padding-top: 6px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.history-bold-num {
+  font-size: 14px;
+  font-weight: 700;
+  color: #d35400;
+}
+.history-summary-grid {
+  display: flex;
+  gap: 8px;
+}
+.history-summary-card {
+  flex: 1;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 12px 6px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.04);
+  border: 1px solid #efe8df;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.history-summary-label {
+  font-size: 11px;
+  font-weight: bold;
+  color: #52443C;
+  margin-bottom: 4px;
+}
+@media (max-width: 380px) {
+  .history-summary-grid {
+    flex-direction: column;
+    gap: 6px;
+  }
+  .history-summary-card {
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 10px 16px;
+  }
+  .history-summary-label {
+    margin-bottom: 0;
+  }
+}
+
+  </style>
+</head>
+<body>
+
+<div class="app-container theme-default">
+  <header>
+    <h1><span class="material-symbols-outlined">auto_awesome</span>ダイモク・マスター</h1>
+    <p id="header-desc">みるくと一緒に今日も唱題チャレンジ</p>
+    <button class="btn-settings" onclick="openSettings()"><span class="material-symbols-outlined">settings</span></button>
+  </header>
+
+  <div class="main-content">
+    <svg class="bg-layer" id="bg-layer" viewBox="0 0 400 250" preserveAspectRatio="xMidYMid slice">
+      <rect x="0" y="0" width="400" height="180" fill="#F5F5DC" />
+      <rect x="60" y="30" width="280" height="120" fill="#E3F2FD" />
+      <rect x="60" y="30" width="280" height="120" fill="none" stroke="#BCAAA4" stroke-width="8"/>
+      <line x1="200" y1="30" x2="200" y2="150" stroke="#BCAAA4" stroke-width="6"/>
+      <line x1="60" y1="90" x2="340" y2="90" stroke="#BCAAA4" stroke-width="6"/>
+      <rect x="0" y="180" width="400" height="70" fill="#D7CCC8" />
+      <line x1="0" y1="180" x2="400" y2="180" stroke="#8D6E63" stroke-width="2" />
+
+      <!-- 左プランター -->
+      <g transform="translate(25, 162) scale(0.92)">
+        <path d="M5,15 L105,15 L100,35 L10,35 Z" fill="#2E7D32"/>
+        <rect x="0" y="10" width="110" height="7" rx="2" fill="#388E3C"/>
+        <g id="planter-left-flowers"></g>
+      </g>
+
+      <!-- 右プランター -->
+      <g transform="translate(274, 162) scale(0.92)">
+        <path d="M5,15 L105,15 L100,35 L10,35 Z" fill="#2E7D32"/>
+        <rect x="0" y="10" width="110" height="7" rx="2" fill="#388E3C"/>
+        <g id="planter-right-flowers"></g>
+      </g>
+    </svg>
+
+    <div class="bubble-container">
+      <div class="bubble" id="dialogue-text">継続は力ですにゃ。
+今日も未来の自分に題目を贈るにゃ。</div>
+    </div>
+
+    <div class="character-stage" id="milk-stage">
+
+<svg id="milk-svg" viewBox="0 0 200 200">
+        <g id="milk-base-platform">
+          <ellipse cx="100" cy="180" rx="75" ry="15" fill="#5E35B1" />
+          <ellipse cx="100" cy="176" rx="70" ry="12" fill="#673AB7" />
+        </g>
+        
+        <g id="item-zabuton" style="display: none;">
+          <path d="M 30,166 L 170,166 L 188,186 L 12,186 Z" fill="#9C27B0" stroke="#7B1FA2" stroke-width="1.5"/>
+          <path d="M 12,186 L 188,186 L 183,193 L 17,193 Z" fill="#7B1FA2"/>
+          <circle cx="14" cy="189" r="2.5" fill="#FFEB3B"/>
+          <circle cx="186" cy="189" r="2.5" fill="#FFEB3B"/>
+          <circle cx="31" cy="167" r="1.5" fill="#FFEB3B"/>
+          <circle cx="169" cy="167" r="1.5" fill="#FFEB3B"/>
+        </g>
+
+        <ellipse cx="165" cy="182" rx="16" ry="6" fill="#E91E63" />
+        <path d="M 155,173 Q 155,186 165,186 Q 175,186 175,173 Z" fill="#FFC107" />
+        <ellipse cx="165" cy="173" rx="10" ry="3" fill="#FFA000" />
+        <rect x="164" y="155" width="2.5" height="18" fill="#795548" transform="rotate(20, 165, 173)" />
+
+        <g id="milk-tail"><path d="M 140,145 C 165,135 175,105 165,75 C 155,65 145,75 150,90 C 155,105 140,125 130,135" fill="#FFFFFF" stroke="#E0E0E0" stroke-width="2"/></g>
+        
+        <path d="M 50,135 C 40,135 40,170 55,175 C 70,180 130,180 145,175 C 160,170 160,135 150,135 C 130,115 70,115 50,135" fill="#FFFFFF" stroke="#E0E0E0" stroke-width="2"/>
+        
+        <circle cx="74.5" cy="173" r="7.5" fill="#FFFFFF" stroke="#E0E0E0" stroke-width="2"/>
+        
+        <g id="milk-foot-left">
+          <circle cx="91.5" cy="173" r="7.5" fill="#FFFFFF" stroke="#E0E0E0" stroke-width="2"/>
+          <circle cx="91.5" cy="174.5" r="2.8" fill="#F8BBD0"/>
+          <circle cx="88.7" cy="171" r="1" fill="#F8BBD0"/>
+          <circle cx="91.5" cy="169.5" r="1" fill="#F8BBD0"/>
+          <circle cx="94.3" cy="171" r="1" fill="#F8BBD0"/>
+        </g>
+        
+        <g id="milk-foot-right">
+          <circle cx="108.5" cy="173" r="7.5" fill="#FFFFFF" stroke="#E0E0E0" stroke-width="2"/>
+          <circle cx="108.5" cy="174.5" r="2.8" fill="#F8BBD0"/>
+          <circle cx="105.7" cy="171" r="1" fill="#F8BBD0"/>
+          <circle cx="108.5" cy="169.5" r="1" fill="#F8BBD0"/>
+          <circle cx="111.3" cy="171" r="1" fill="#F8BBD0"/>
+        </g>
+        
+        <circle cx="125.5" cy="173" r="7.5" fill="#FFFFFF" stroke="#E0E0E0" stroke-width="2"/>
+
+        <path d="M 60,115 Q 100,130 140,115" fill="none" stroke="#D32F2F" stroke-width="5"/>
+        <circle id="medal-color" cx="100" cy="122" r="10" fill="#B0BEC5" stroke="#FFFFFF" stroke-width="1.5"/>
+
+        <g id="item-ribbon" style="display: none;" transform="scale(1.3)" transform-origin="100 122">
+          <path d="M 100,122 Q 84,110 88,124 Q 92,134 100,124" fill="#E53935"/>
+          <path d="M 100,122 Q 116,110 112,124 Q 108,134 100,124" fill="#E53935"/>
+          <circle cx="100" cy="123" r="4.5" fill="#B71C1C"/>
+          <path d="M 98,125 L 91,138 L 96,138 Z" fill="#E53935"/>
+          <path d="M 102,125 L 109,138 L 104,138 Z" fill="#E53935"/>
+        </g>
+
+        <g id="item-brooch" style="display: none;" transform="translate(-15, 26)">
+          <circle cx="100" cy="122" r="9" fill="#FFD700" stroke="#FFA000" stroke-width="1"/>
+          <polygon points="100,115 102,120 107,120 103,123 105,128 100,125 95,128 97,123 93,120 98,120" fill="#FFEB3B"/>
+          <circle cx="100" cy="122" r="3.5" fill="#E91E63"/>
+        </g>
+
+        <g id="milk-head" transform="translate(0, -5)">
+          <path d="M 50,82 Q 40,42 75,57 Z" fill="#FFFFFF" stroke="#E0E0E0" stroke-width="2"/>
+          <path d="M 55,77 Q 48,52 70,62 Z" fill="#F8BBD0"/>
+          <path d="M 150,82 Q 160,42 125,57 Z" fill="#FFFFFF" stroke="#E0E0E0" stroke-width="2"/>
+          <path d="M 145,77 Q 152,52 130,62 Z" fill="#F8BBD0"/>
+          
+          <ellipse cx="100" cy="95" rx="52" ry="42" fill="#FFFFFF" stroke="#E0E0E0" stroke-width="2"/>
+          <g class="eyes-normal" id="eyes-normal"><circle cx="76" cy="85" r="8" fill="#0288D1"/><circle cx="74" cy="82" r="2.5" fill="#FFFFFF"/><circle cx="124" cy="85" r="8" fill="#0288D1"/><circle cx="122" cy="82" r="2.5" fill="#FFFFFF"/></g>
+          <g class="eyes-happy" id="eyes-happy" style="display: none;"><path d="M 68,85 Q 76,72 84,85" fill="none" stroke="#3E2723" stroke-width="2.5"/><path d="M 116,85 Q 124,72 132,85" fill="none" stroke="#3E2723" stroke-width="2.5"/></g>
+          <polygon points="100,99 97,95 103,95" fill="#F8BBD0"/>
+          <path d="M 97,103 Q 100,106 100,103 Q 100,106 103,103" fill="none" stroke="#3E2723" stroke-width="1.5"/>
+        </g>
+      </svg>
+   
+ 
+    </div>
+
+    <div class="status-card">
+      <div class="status-grid">
+        <div class="status-item"><span class="status-label">現在の称号</span><div class="status-value" id="rank-text">初級実践者</div></div>
+        <div class="status-item"><span class="status-label">トータル唱題</span><div class="status-value large" id="total-text">0 遍</div></div>
+        
+        <div class="status-item"><span class="status-label">本日唱題</span><div class="status-value large" id="today-text">0 遍</div></div>
+        <div class="status-item">
+          <span class="status-label">なかよし度 (<span id="trust-text">0%</span>)</span>
+          <span style="font-size: 9.5px; color: #795548; font-weight: 500; margin-top: 1px; line-height: 1.3;">お題目500遍ごとに5%アップ<br>お世話で1%アップ<br>毎日10%ダウン</span>
+        </div>
+        
+        <div class="status-divider"></div>
+        
+        <div class="status-item"><span class="status-label">持続は力・毎日唱題記録</span><div class="status-value" id="streak-text">0 日</div></div>
+        <div class="status-item">
+          <span class="status-label">開花のヒント</span>
+          <div class="status-value" id="next-flower-text">あと 5,000 遍で次の花が咲くよ</div>
+          <div class="progress-bar"><div class="progress-fill" id="next-flower-fill"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="fixed-bottom-actions">
+    <div class="actions-grid">
+      <button class="btn-action" onclick="handleAction('stroke')"><span class="material-symbols-outlined">front_hand</span>なでる</button>
+      <button class="btn-action" onclick="handleAction('play')"><span class="material-symbols-outlined">toys</span>遊ぶ</button>
+      <button class="btn-action" onclick="handleAction('snack')"><span class="material-symbols-outlined">cookie</span>おやつ</button>
+      
+      <!-- 【V19レイアウト変更】画像通りのダイモク管理バー -->
+      <div class="daimoku-bar">
+        <span class="daimoku-bar-title">ダイモク</span>
+        <button class="daimoku-bar-btn" onclick="openDialog()">
+          <span class="material-symbols-outlined" style="font-size:18px;">edit_square</span>記録
+        </button>
+        <button class="daimoku-bar-btn" onclick="openHistoryModal()">
+          記録を見る
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 唱題回数の入力ダイアログ -->
+<div class="dialog-overlay" id="record-dialog">
+  <div class="dialog">
+    <div style="font-size: 15px; font-weight: bold; margin-bottom: 8px;">唱題回数の入力</div>
+    <div class="preset-buttons">
+      <button class="preset-btn" onclick="setInputValue(500)">500</button>
+      <button class="preset-btn" onclick="setInputValue(1000)">1000</button>
+      <button class="preset-btn" onclick="setInputValue(2000)">2000</button>
+      <button class="preset-btn" onclick="setInputValue(3000)">3000</button>
+      <button class="preset-btn" onclick="setInputValue(5000)">5000</button>
+      <button class="preset-btn" onclick="setInputValue(10000)">10000</button>
+    </div>
+    <input type="number" class="dialog-input" id="daimoku-input" placeholder="回数を入力" min="1">
+    <div class="dialog-actions">
+   <button class="btn-flat" style="background:#E0E0E0;" onclick="closeDialog()">やめる</button>
+   <button class="btn-flat" style="background:#A65D00; color:white;" onclick="submitRecord()"> 保存 </button>
+    </div>
+  </div>
+</div>
+
+<!-- 設定＆マイページ画面 -->
+<div class="dialog-overlay" id="settings-dialog">
+  <div class="dialog" style="max-height: 85vh; overflow-y: auto;">
+    <div style="font-size: 16px; font-weight: bold; margin-bottom: 14px;">⚙️ 設定・マイページ</div>
+    
+    <div style="display: flex; gap: 8px; margin-bottom: 14px;">
+      <div style="flex: 1;">
+        <span class="setting-label">飼い主の名前</span>
+        <input type="text" class="dialog-input" id="owner-input" placeholder="例) タケ" style="margin-bottom:0; padding:8px; font-size:14px;">
+      </div>
+      <div style="flex: 1;">
+        <span class="setting-label">ネコの名前</span>
+        <input type="text" class="dialog-input" id="cat-input" placeholder="例) みるく" style="margin-bottom:0; padding:8px; font-size:14px;">
+      </div>
+    </div>
+
+    <!-- コレクション確認エリア -->
+    <div style="margin-bottom: 16px; text-align: left;">
+      <span class="setting-label" style="border-bottom: 2px solid #FF8A80; padding-bottom: 2px; margin-bottom: 8px;">👗 みるくのコレクション（5万遍ごと自動着用）</span>
+      <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px;" id="item-selector-grid"></div>
+    </div>
+
+    <!-- カラー変更機能 -->
+    <div style="margin-bottom: 14px; text-align: left;">
+      <span class="setting-label" style="border-bottom: 2px solid #80DEEA; padding-bottom: 2px; margin-bottom: 8px;">🎨 模様替え・カラー（15日ごと）</span>
+      <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px;" id="theme-selector-grid"></div>
+    </div>
+    
+    <div style="margin-top: 15px; border-top: 1px dashed #CCC; padding-top: 10px;">
+      <button class="btn-reset" style="margin-top:0; padding:8px; font-size:12px;" onclick="resetData()">記録をリセットする</button>
+    </div>
+    
+    <div class="dialog-actions">
+      <button class="btn-flat" style="background:#E0E0E0;" onclick="closeSettings()">閉じる</button>
+      <button class="btn-flat" style="background:#A65D00; color:white;" onclick="saveSettings()">名前を保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- 【V19追加】唱題のあゆみ モーダル -->
+<div class="dialog-overlay" id="history-dialog">
+  <div class="dialog" style="max-width: 380px; max-height: 85vh; overflow-y: auto; text-align: left; padding: 18px;">
+    <div style="font-size: 18px; font-weight: bold; text-align: center; margin-bottom: 16px; color: var(--md-sys-color-primary);">📿 唱題のあゆみ</div>
+    
+    <!-- 今週・先週（常に左右2列表示） -->
+    <div class="history-weeks-grid">
+      <div class="history-week-card">
+        <div class="history-card-title">【今週】</div>
+        <div id="this-week-list" class="history-day-list"></div>
+        <div class="history-card-total">今週合計<span id="this-week-total" class="history-bold-num">0遍</span></div>
+      </div>
+      <div class="history-week-card">
+        <div class="history-card-title">【先週】</div>
+        <div id="last-week-list" class="history-day-list"></div>
+        <div class="history-card-total">先週合計<span id="last-week-total" class="history-bold-num">0遍</span></div>
+      </div>
+    </div>
+
+    <!-- 月別・年別集計カード（スマホ幅が狭いと自動で縦並び） -->
+    <div style="font-size: 13px; font-weight: bold; margin: 18px 0 8px 0; color: #52443C;">【唱題集計】</div>
+    <div class="history-summary-grid">
+      <div class="history-summary-card">
+        <span class="history-summary-label">今月</span>
+        <span id="this-month-total" class="history-bold-num">0遍</span>
+      </div>
+      <div class="history-summary-card">
+        <span class="history-summary-label">先月</span>
+        <span id="last-month-total" class="history-bold-num">0遍</span>
+      </div>
+      <div class="history-summary-card">
+        <span class="history-summary-label">今年</span>
+        <span id="this-year-total" class="history-bold-num">0遍</span>
+      </div>
+    </div>
+
+    <div class="dialog-actions" style="margin-top: 16px;">
+      <button class="btn-flat" style="background:#E0E0E0; width: 100%;" onclick="closeHistoryModal()">閉じる</button>
+    </div>
+  </div>
+</div>
+
+<!-- JavaScriptファイルを読み込む -->
+<script>
+
+let state = { total: 0, today: 0, trust: 50, todayTrustGained: 0, streak: 0, lastDate: '', ownerName: '', catName: '', flowers: [], themeColor: 'default' };
+
+function generateFlowers() {
+  const colors = ['#F44336', '#2196F3', '#FFEB3B', '#E91E63', '#FF9800', '#FFFFFF'];
+  let newFlowers = [];
+  const stemX = [16, 34, 52, 70, 88]; 
+  const branchConfig = [
+    { row: 'low',  dx: -14, dy: -24, sy: -10 },
+    { row: 'low',  dx: 0,   dy: -32, sy: -12 },
+    { row: 'low',  dx: 14,  dy: -24, sy: -10 },
+    { row: 'mid',  dx: -18, dy: -48, sy: -22 },
+    { row: 'mid',  dx: -8,  dy: -56, sy: -30 },
+    { row: 'mid',  dx: 8,   dy: -52, sy: -26 },
+    { row: 'mid',  dx: 18,  dy: -46, sy: -22 },
+    { row: 'high', dx: -14, dy: -66, sy: -38 }, 
+    { row: 'high', dx: 0,   dy: -72, sy: -42 }, 
+    { row: 'high', dx: 14,  dy: -68, sy: -40 }
+  ];
+
+  let index = 0;
+  ['left', 'right'].forEach(planter => {
+    stemX.forEach((bx, stemIdx) => {
+      branchConfig.forEach(b => {
+        let rx = bx + b.dx + (Math.random() * 6 - 3);
+        let ry = b.dy + (Math.random() * 6 - 3);
+        newFlowers.push({
+          id: index++,
+          planter: planter,
+          baseX: bx,
+          sy: b.sy,
+          x: rx,
+          y: ry,
+          row: b.row,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          target: 0
+        });
+      });
+    });
+  });
+
+  let targets = Array.from({length: 100}, (_, i) => (i + 1) * 5000);
+  for (let i = targets.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [targets[i], targets[j]] = [targets[j], targets[i]];
+  }
+  newFlowers.forEach((f, i) => f.target = targets[i]);
+  
+  return newFlowers;
+}
+
+function getRandomDialogue() {
+  const o = state.ownerName || 'タケさん';
+  const c = state.catName || 'みるく';
+  const msgs = [
+    `${o}さん、お疲れさまですにゃ！`, `継続は力ですにゃ。`, `${o}さんの真剣な姿、かっこいいですにゃ。`,
+    `${c}の肉球パワーを送りますにゃ！`, `毎日続ける${o}さんを尊敬してますにゃ。`,
+    `${o}さんの祈りはきっと届きますにゃ。`, `${c}はいつもそばにいますにゃ。`, `今日も一日、素晴らしいスタートですにゃ！`
+  ];
+  return msgs[Math.floor(Math.random() * msgs.length)];
+}
+
+function init() {
+  const saved = localStorage.getItem('daimoku_master_data');
+  if (saved) {
+    const parsed = JSON.parse(saved);
+    state = { ...state, ...parsed };
+    
+    if (state.trust === undefined) state.trust = 0;
+    if (state.todayTrustGained === undefined) state.todayTrustGained = 0;
+
+    const today = new Date().toLocaleDateString();
+    if (state.lastDate !== today) {
+      state.trust = Math.max(0, state.trust - 10);
+      state.todayTrustGained = 0;
+
+      let y = new Date(); y.setDate(y.getDate() - 1);
+      state.streak = (state.lastDate === y.toLocaleDateString()) ? (state.streak || 0) + 1 : 1;
+      state.today = 0; state.lastDate = today;
+    }
+  } else { 
+    state.lastDate = new Date().toLocaleDateString();
+    state.trust = 0;
+    state.todayTrustGained = 0;
+  }
+  
+  if (!state.ownerName) state.ownerName = 'タケさん';
+  if (!state.catName) state.catName = 'みるく';
+  if (!state.themeColor) state.themeColor = 'default';
+  
+  if (!state.flowers || state.flowers.length !== 100) {
+    state.flowers = generateFlowers();
+  } else {
+    const fresh = generateFlowers();
+    state.flowers.forEach((f, idx) => {
+      if(fresh[idx]) {
+        f.sy = fresh[idx].sy; f.x = fresh[idx].x; f.y = fresh[idx].y;
+      }
+    });
+  }
+
+  setTimeBackground();
+  applyTheme(state.themeColor);
+  updateUI();
+}
+
+function setTimeBackground() {
+  const hour = new Date().getHours();
+  const bg = document.getElementById('bg-layer');
+  if (!bg) return;
+  bg.setAttribute('class', 'bg-layer');
+  if (hour >= 5 && hour < 11) bg.classList.add('time-morning');
+  else if (hour >= 11 && hour < 18) bg.classList.add('time-day');
+  else bg.classList.add('time-night');
+}
+
+function applyTheme(theme) {
+  const container = document.querySelector('.app-container');
+  container.classList.remove('theme-default', 'theme-pink', 'theme-green', 'theme-purple');
+  container.classList.add('theme-' + (theme || 'default'));
+  
+  let grad = "linear-gradient(135deg, #e6ccb2, #b07d62)";
+  if (theme === 'pink') grad = "linear-gradient(135deg, #FFC0CB, #F48FB1)";
+  if (theme === 'green') grad = "linear-gradient(135deg, #C8E6C9, #81C784)";
+  if (theme === 'purple') grad = "linear-gradient(135deg, #E1BEE7, #BA68C8)";
+  document.body.style.background = grad;
+}
+
+function applyEquipment() {
+  document.getElementById('item-ribbon').style.display = (state.total >= 50000) ? 'block' : 'none';
+  document.getElementById('item-brooch').style.display = (state.total >= 100000) ? 'block' : 'none';
+  
+  if (state.total >= 150000) {
+    document.getElementById('item-zabuton').style.display = 'block';
+    document.getElementById('milk-base-platform').style.display = 'none';
+  } else {
+    document.getElementById('item-zabuton').style.display = 'none';
+    document.getElementById('milk-base-platform').style.display = 'block';
+  }
+}
+
+function renderSelectorGrids() {
+  const items = [
+    { name: '🎀 リボン', req: 50000 },
+    { name: '✨ ブローチ', req: 100000 },
+    { name: '💜 特製座布団', req: 150000 }
+  ];
+
+  const themes = [
+    { id: 'default', name: '🟤 ナチュラル茶', req: 0 },
+    { id: 'pink', name: '🌸 パステルピンク', req: 15 },
+    { id: 'green', name: '🍏 ミントグリーン', req: 30 },
+    { id: 'purple', name: '🍇 ラベンダー', req: 45 }
+  ];
+
+  let itemHTML = '';
+  items.forEach(item => {
+    const isUnlocked = state.total >= item.req;
+    let style = "padding:8px; font-size:12px; font-weight:bold; border-radius:8px; text-align:center; border:1px solid ";
+    if (isUnlocked) {
+      style += "#4CAF50; background:#E8F5E9; color:#2E7D32;";
+      itemHTML += `<div style="${style}">🎉 ${item.name}<br>(着用中)</div>`;
+    } else {
+      style += "#CCC; background:#F5F5F5; color:#999;";
+      itemHTML += `<div style="${style}">🔒 ${item.name}<br>(${(item.req/10000)}万遍)</div>`;
+    }
+  });
+  document.getElementById('item-selector-grid').innerHTML = itemHTML;
+
+  let themeHTML = '';
+  themes.forEach(t => {
+    const isUnlocked = (state.streak || 0) >= t.req;
+    const isCurrent = (state.themeColor || 'default') === t.id;
+    let style = "padding:8px; font-size:12px; font-weight:bold; border-radius:8px; cursor:pointer; border:2px solid ";
+    style += isCurrent ? "var(--md-sys-color-primary); background:#FFDCC3;" : "#CCC; background:#FFF;";
+
+    if (isUnlocked) {
+      themeHTML += `<button style="${style}" onclick="selectTheme('${t.id}')">${t.name}</button>`;
+    } else {
+      themeHTML += `<button style="${style} opacity:0.5; cursor:not-allowed;" disabled>🔒 ${t.req}日記録</button>`;
+    }
+  });
+  document.getElementById('theme-selector-grid').innerHTML = themeHTML;
+}
+
+function selectTheme(id) { state.themeColor = id; applyTheme(id); updateUI(); renderSelectorGrids(); }
+
+function updateUI() {
+
+  let r = "初級実践者";
+let mc = "#CD7F32";
+if (state.total >= 750000) {
+  r = "広宣流布の勇者";
+  mc = "#FFD700";
+}
+else if (state.total >= 500000) {
+  r = "ダイモク・マスター";
+  mc = "#E5E4E2";
+}
+else if (state.total >= 250000) {
+  r = "努力の勇者";
+  mc = "#C0C0C0";
+}
+else if (state.total >= 100000) {
+  r = "継続の達人";
+  mc = "#90CAF9";
+}
+else if (state.total >= 50000) {
+  r = "唱題リーダー";
+  mc = "#81C784";
+}
+else if (state.total >= 25000) {
+  r = "実践の人";
+  mc = "#FFB74D";
+}
+else if (state.total >= 10000) {
+  r = "挑戦者";
+  mc = "#CE93D8";
+}
+  
+  let unbloomed = state.flowers.filter(f => state.total < f.target);
+  let progress = 0;
+  if (unbloomed.length === 0) {
+    document.getElementById('next-flower-text').innerText = "満開！すべての庭が完成したにゃ！";
+    progress = 100;
+  } else {
+    let nextTarget = Math.min(...unbloomed.map(f => f.target));
+    let remain = nextTarget - state.total;
+    document.getElementById('next-flower-text').innerText = "あと " + remain.toLocaleString() + " 遍で次の花が咲くよ";
+    
+    let prevTarget = nextTarget - 5000;
+    if (prevTarget < 0) prevTarget = 0;
+    let range = nextTarget - prevTarget;
+    let earned = state.total - prevTarget;
+    progress = (earned / range) * 100;
+  }
+  document.getElementById('next-flower-fill').style.width = Math.min(100, Math.max(0, progress)) + "%";
+
+  document.getElementById('medal-color').setAttribute('fill', mc);
+  document.getElementById('rank-text').innerText = r;
+  document.getElementById('today-text').innerText = (state.today || 0).toLocaleString() + " 遍";
+  document.getElementById('total-text').innerText = (state.total || 0).toLocaleString() + " 遍";
+  document.getElementById('trust-text').innerText = (state.trust || 0) + "%";
+  document.getElementById('streak-text').innerText = (state.streak || 0) + " 日";
+  
+  document.getElementById('header-desc').innerText = `${state.catName}と一緒に今日も唱題チャレンジ`;
+
+  renderFlowers();
+  applyEquipment();
+  localStorage.setItem('daimoku_master_data', JSON.stringify(state));
+}
+
+function renderFlowers() {
+  let leftHTML = ''; let rightHTML = '';
+
+  ['left', 'right'].forEach(planterType => {
+    let svgHTML = '';
+    const pFlowers = state.flowers.filter(f => f.planter === planterType);
+    const stemX = [16, 34, 52, 70, 88];
+
+    stemX.forEach(bx => {
+      svgHTML += `<path d="M${bx},15 Q${bx-3},-15 ${bx},-46" fill="none" stroke="#2E7D32" stroke-width="2.5" stroke-linecap="round"/>`;
+      svgHTML += `<path d="M${bx},-5 Q${bx-12},-10 ${bx-15},2 Q${bx-7},5 ${bx},-5" fill="#388E3C"/>`;
+      svgHTML += `<path d="M${bx},-15 Q${bx+12},-20 ${bx+15},-8 Q${bx+7},-5 ${bx},-15" fill="#388E3C"/>`;
+    });
+
+    const order = { 'high': 1, 'mid': 2, 'low': 3 };
+    const sorted = pFlowers.sort((a, b) => order[a.row] - order[b.row]);
+
+    ['high', 'mid', 'low'].forEach(rowType => {
+      svgHTML += `<g onclick="showRowInfo('${rowType}')" style="cursor: pointer;" class="flower-part">`;
+      const rowFlowers = sorted.filter(f => f.row === rowType);
+
+      rowFlowers.forEach(f => {
+        const isBloomed = (state.total || 0) >= f.target;
+        let sizeScale = f.row === 'high' ? 0.7 : (f.row === 'mid' ? 0.55 : 0.4); 
+
+        let midX = f.baseX + (f.x - f.baseX) * 0.5;
+        svgHTML += `<path d="M${f.baseX},${f.sy} Q${midX},${f.y} ${f.x},${f.y}" fill="none" stroke="#4CAF50" stroke-width="1.5" stroke-linecap="round"/>`;
+
+        let leafX = f.baseX + (f.x - f.baseX) * 0.4;
+        let leafY = f.sy + (f.y - f.sy) * 0.4;
+        let ldx = (f.x > f.baseX) ? 5 : -5;
+        svgHTML += `<path d="M${leafX},${leafY} Q${leafX+ldx},${leafY-6} ${leafX+ldx*1.5},${leafY+2} Q${leafX+ldx/2},${leafY+5} ${leafX},${leafY}" fill="#4CAF50"/>`;
+
+        svgHTML += `<g transform="translate(${f.x}, ${f.y})">`;
+        if (!isBloomed) {
+          svgHTML += `<g transform="scale(${sizeScale})">
+                        <ellipse cx="0" cy="-2" rx="3.5" ry="4.5" fill="#8BC34A" stroke="#4CAF50" stroke-width="0.7"/>
+                        <path d="M-3.5,-1 Q0,-6 3.5,-1 Z" fill="#4CAF50"/>
+                      </g>`;
+        } else {
+          svgHTML += `<g transform="scale(${sizeScale})">
+                        <g class="anim-bloom">
+                          <circle cx="0" cy="-6" r="4.5" fill="${f.color}" />
+                          <circle cx="-5" cy="-1" r="4.5" fill="${f.color}" />
+                          <circle cx="5" cy="-1" r="4.5" fill="${f.color}" />
+                          <circle cx="-3" cy="5" r="4.5" fill="${f.color}" />
+                          <circle cx="3" cy="5" r="4.5" fill="${f.color}" />
+                          <circle cx="0" cy="0" r="2.5" fill="${f.color === '#FFFFFF' ? '#FFEB3B' : '#FFF'}" />
+                        </g>
+                      </g>`;
+        }
+        svgHTML += `</g>`;
+      });
+      svgHTML += `</g>`;
+    });
+
+    if (planterType === 'left') leftHTML = svgHTML;
+    else rightHTML = svgHTML;
+  });
+
+  document.getElementById('planter-left-flowers').innerHTML = leftHTML;
+  document.getElementById('planter-right-flowers').innerHTML = rightHTML;
+}
+
+function showRowInfo(row) {
+  const rowNames = { 'low': '低い花（前列）', 'mid': '中くらいの花（中列）', 'high': '高い花（後列）' };
+  const flowersInRow = state.flowers.filter(f => f.row === row);
+  const totalInRow = flowersInRow.length;
+  const bloomedCount = flowersInRow.filter(f => (state.total || 0) >= f.target).length;
+  
+  let maxTargetInRow = Math.max(...flowersInRow.map(f => f.target));
+  let remain = maxTargetInRow - (state.total || 0);
+  if (remain < 0) remain = 0;
+  
+  const text = `${rowNames[row]}：開花数 ${bloomedCount}/${totalInRow}輪 | この段の満開まであと ${remain.toLocaleString()} 遍にゃ！`;
+  document.getElementById('dialogue-text').innerText = text;
+  triggerAnim('anim-purr');
+}
+
+function triggerAnim(className) {
+  const stage = document.getElementById('milk-stage');
+  stage.className = 'character-stage ' + className;
+  document.getElementById('eyes-normal').style.display = 'none';
+  document.getElementById('eyes-happy').style.display = 'block';
+  setTimeout(() => {
+    stage.className = 'character-stage';
+    document.getElementById('eyes-normal').style.display = 'block';
+    document.getElementById('eyes-happy').style.display = 'none';
+  }, 1500);
+}
+
+function handleAction(type) {
+
+  if (type === 'stroke') {
+    state.trust = Math.min(100, state.trust + 1);
+    updateUI();
+    document.getElementById('dialogue-text').innerText = "ふにゃ〜ん！温かいにゃ〜。";
+    triggerAnim('anim-purr');
+  }
+
+  if (type === 'play') {
+    state.trust = Math.min(100, state.trust + 1);
+    updateUI();
+    document.getElementById('dialogue-text').innerText = "おもちゃ楽しいにゃ！トウッ！";
+    triggerAnim('anim-jump');
+  }
+
+  if (type === 'snack') {
+    state.trust = Math.min(100, state.trust + 1);
+    updateUI();
+    document.getElementById('dialogue-text').innerText = "おやつ美味しいにゃ！モグモグ。";
+    triggerAnim('anim-bounce');
+  }
+}
+
+function openDialog() { document.getElementById('record-dialog').style.display = 'flex'; }
+function closeDialog() { document.getElementById('record-dialog').style.display = 'none'; document.getElementById('daimoku-input').value = ""; }
+function setInputValue(v) { document.getElementById('daimoku-input').value = v; }
+
+function openSettings() {
+  document.getElementById('owner-input').value = state.ownerName || 'タケさん';
+  document.getElementById('cat-input').value = state.catName || 'みるく';
+  renderSelectorGrids();
+  document.getElementById('settings-dialog').style.display = 'flex';
+}
+function closeSettings() { document.getElementById('settings-dialog').style.display = 'none'; }
+
+function saveSettings() {
+  state.ownerName = document.getElementById('owner-input').value.trim() || 'タケさん';
+  state.catName = document.getElementById('cat-input').value.trim() || 'みるく';
+  closeSettings();
+  updateUI();
+  document.getElementById('dialogue-text').innerText = `${state.ownerName}さん、設定を保存したにゃ！`;
+  triggerAnim('anim-purr');
+}
+
+function resetData() {
+  if (confirm("これまでの唱題記録（トータル・本日・持続は力・毎日唱題記録など）をすべてリセットしますか？\n※お名前や着替え、カラー状態も初期化されます。\n※この操作は取り消せません。")) {
+    const currentOwner = state.ownerName;
+    const currentCat = state.catName;
+    state = {
+      total: 0, today: 0, trust: 50, todayTrustGained: 0, streak: 0,
+      lastDate: new Date().toLocaleDateString(),
+      ownerName: currentOwner, catName: currentCat, 
+      flowers: generateFlowers(), themeColor: 'default'
+    };
+    
+    // 【V19追加】日別履歴データもリセット
+    localStorage.removeItem('daimokuDailyHistory');
+    
+    applyTheme('default');
+    updateUI();
+    closeSettings();
+    document.getElementById('dialogue-text').innerText = "データをリセットして、新しいつぼみからスタートにゃ！";
+    triggerAnim('anim-bounce');
+  }
+}
+
+function submitRecord() {
+  const val = parseInt(document.getElementById('daimoku-input').value);
+  if (isNaN(val) || val <= 0) return;
+  
+  let oldToday = state.today || 0;
+  state.today = oldToday + val;
+  state.total = (state.total || 0) + val;
+
+  // ===== 【V19追加】日別データの保存ロジック =====
+  try {
+    const dNow = new Date();
+    const dYear = dNow.getFullYear();
+    const dMonth = String(dNow.getMonth() + 1).padStart(2, '0');
+    const dDay = String(dNow.getDate()).padStart(2, '0');
+    const dateKey = `${dYear}-${dMonth}-${dDay}`;
+    
+    let historyData = JSON.parse(localStorage.getItem('daimokuDailyHistory')) || {};
+    historyData[dateKey] = (historyData[dateKey] || 0) + val;
+    localStorage.setItem('daimokuDailyHistory', JSON.stringify(historyData));
+  } catch(e) {
+    console.error("履歴の保存に失敗しました:", e);
+  }
+  // ===============================================
+
+  let oldGains = Math.floor(oldToday / 500) * 5;
+  let newGains = Math.floor(state.today / 500) * 5;
+  let diffGains = newGains - oldGains;
+
+  if (diffGains > 0) {
+    let currentGained = state.todayTrustGained || 0;
+    let allowedGain = Math.min(diffGains, 30 - currentGained);
+    if (allowedGain > 0) {
+      state.trust = Math.min(100, (state.trust || 0) + allowedGain);
+      state.todayTrustGained = currentGained + allowedGain;
+    }
+  }
+
+  closeDialog(); updateUI();
+  document.getElementById('dialogue-text').innerText = getRandomDialogue();
+  triggerAnim('anim-bounce');
+}
+
+
+// ===== 【V19追加】唱題のあゆみ 集計・表示ロジック =====
+function openHistoryModal() {
+  renderHistoryData();
+  document.getElementById('history-dialog').style.display = 'flex';
+}
+
+function closeHistoryModal() {
+  document.getElementById('history-dialog').style.display = 'none';
+}
+function renderHistoryData() {
+  const historyData = JSON.parse(localStorage.getItem('daimokuDailyHistory')) || {};
+  const now = new Date();
+  
+  let thisWeekTotal = 0;
+  let lastWeekTotal = 0;
+  let thisWeekHtml = '';
+  let lastWeekHtml = '';
+
+  // --- 【修正】今週の月曜日を計算 ---
+  const dayOfWeek = now.getDay(); // 0:日, 1:月, 2:火, ..., 6:土
+  // 日曜日の場合は6日前、それ以外は (曜日番号 - 1) 日前が月曜日
+  const daysToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+  
+  const thisMonday = new Date(now);
+  thisMonday.setDate(now.getDate() - daysToMonday);
+
+  // --- 【修正】今週（月曜日～日曜日）の集計・生成 ---
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(thisMonday);
+    d.setDate(thisMonday.getDate() + i);
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    const count = historyData[key] || 0;
+    thisWeekTotal += count;
+    
+    // 表示は元の「配列/日付」の形式を維持（※曜日を入れたい場合は下記ワンポイント参照）
+    thisWeekHtml += `<div class="history-day-item"><span>${d.getMonth() + 1}/${d.getDate()}</span><span><strong>${count.toLocaleString()}</strong>遍</span></div>`;
+  }
+
+  // --- 【修正】先週の月曜日を計算 ---
+  const lastMonday = new Date(thisMonday);
+  lastMonday.setDate(thisMonday.getDate() - 7);
+
+  // --- 【修正】先週（月曜日～日曜日）の集計・生成 ---
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(lastMonday);
+    d.setDate(lastMonday.getDate() + i);
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    const count = historyData[key] || 0;
+    lastWeekTotal += count;
+    
+    lastWeekHtml += `<div class="history-day-item"><span>${d.getMonth() + 1}/${d.getDate()}</span><span><strong>${count.toLocaleString()}</strong>遍</span></div>`;
+  }
+
+  // ===== 以下、月別・年別の集計ロジック（変更なし） =====
+  let thisMonthTotal = 0;
+  let lastMonthTotal = 0;
+  let thisYearTotal = 0;
+
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth();     
+  const lastMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  const lastMonthYear = lastMonthDate.getFullYear();
+  const lastMonth = lastMonthDate.getMonth();
+
+  for (const [dateStr, count] of Object.entries(historyData)) {
+    const parts = dateStr.split('-');
+    if (parts.length !== 3) continue;        
+    const rYear = parseInt(parts[0], 10);
+    const rMonth = parseInt(parts[1], 10) - 1;
+
+    if (rYear === currentYear) {
+      thisYearTotal += count; // 今年
+    }
+    if (rYear === currentYear && rMonth === currentMonth) {
+      thisMonthTotal += count; // 今月
+    }
+    if (rYear === lastMonthYear && rMonth === lastMonth) {
+      lastMonthTotal += count; // 先月
+    }
+  }
+
+  // ===== 画面（DOM）への反映 =====
+  document.getElementById('this-week-list').innerHTML = thisWeekHtml;
+  document.getElementById('last-week-list').innerHTML = lastWeekHtml;
+  document.getElementById('this-week-total').innerText = thisWeekTotal.toLocaleString() + "遍";
+  document.getElementById('last-week-total').innerText = lastWeekTotal.toLocaleString() + "遍";    
+  document.getElementById('this-month-total').innerText = thisMonthTotal.toLocaleString() + "遍";
+  document.getElementById('last-month-total').innerText = lastMonthTotal.toLocaleString() + "遍";
+  document.getElementById('this-year-total').innerText = thisYearTotal.toLocaleString() + "遍";
+}
+
+
+window.onload = init;
+
+</script> 
+
+</body>
+</html>
